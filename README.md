@@ -12,3 +12,6 @@ Cela permetra à VS de faire les includes sans se casser la tête avec du linkag
 
 4. Sous VS dans Propriétés du projet-> C/C++ -> Général -> Autre répertoires Include ajouter:
 .\vcpkg\vcpkg\installed\x64-windows\include
+
+5. Pour ffmpeg, taper: .\vcpkg\vcpkg install ffmpeg
+Attention, ça prend entre 10 minutes et 1/4 d'heure
