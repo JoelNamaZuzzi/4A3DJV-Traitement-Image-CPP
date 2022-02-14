@@ -2,6 +2,11 @@
 //
 
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <jpeglib.h>
 
 int main(void)
 {
