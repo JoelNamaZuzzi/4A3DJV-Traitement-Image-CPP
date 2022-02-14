@@ -3,9 +3,11 @@
 
 #include <iostream>
 
-int main()
+int main(void)
 {
     std::cout << "Hello World!\n";
+
+    return 0;
 }
 
 // Exécuter le programme : Ctrl+F5 ou menu Déboguer > Exécuter sans débogage
