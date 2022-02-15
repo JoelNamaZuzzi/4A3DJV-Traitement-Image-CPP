@@ -16,17 +16,22 @@
 #include <libavutil/avutil.h>
 #include <libavutil/imgutils.h> 
 #include <libavutil/timestamp.h>
+#include <filesystem> // C++17 standard header file name
+#include <filesystem> // Header file for pre-standard implementation
+
+namespace fs = std::filesystem;
+
 
 int main(int argc, char* argv[])
 {
-    //std::string path = argv[1];
+    std::string path = "";
 
     if (argv[1]!=NULL) {
         std::string path = argv[1];
         std::cout << "There is a path: "<<path<<"\n";
     }
     else {
-        std::cout << "There is no path !";
+        //std::cout << "There is no path !";
         //return 0;
     }
 
@@ -35,7 +40,12 @@ int main(int argc, char* argv[])
         std::cout << "There is an option: " << option << "\n";
     }
     else {
-        std::cout << "There is no option !";
+        //std::cout << "There is no option !";
+    }
+
+    path = "C:/Users/Nama/Pictures/CPP";
+    for (const auto& entry : fs::directory_iterator(path)) {
+        std::cout << entry.path() << std::endl;
     }
 
     return 0;
