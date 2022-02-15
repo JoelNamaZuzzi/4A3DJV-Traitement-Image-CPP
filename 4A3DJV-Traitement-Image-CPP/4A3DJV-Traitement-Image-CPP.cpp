@@ -17,9 +17,26 @@
 #include <libavutil/imgutils.h> 
 #include <libavutil/timestamp.h>
 
-int main(void)
+int main(int argc, char* argv[])
 {
-    std::cout << "Hello World!\n";
+    //std::string path = argv[1];
+
+    if (argv[1]!=NULL) {
+        std::string path = argv[1];
+        std::cout << "There is a path: "<<path<<"\n";
+    }
+    else {
+        std::cout << "There is no path !";
+        //return 0;
+    }
+
+    if (argc > 1 && argv[2] != NULL) {
+        std::string option = argv[2];
+        std::cout << "There is an option: " << option << "\n";
+    }
+    else {
+        std::cout << "There is no option !";
+    }
 
     return 0;
 }
