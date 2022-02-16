@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
         //std::cout << "There is no option !";
     }
 
-    path = "C:/Users/Nama/Pictures/CPP";
+    path = "./picture";
     for (const auto& entry : fs::directory_iterator(path)) {
         std::cout << entry.path() << std::endl;
     }
