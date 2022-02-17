@@ -26,6 +26,7 @@ namespace fs = std::filesystem;
 int main(int argc, char* argv[])
 {
     std::string path = "";
+    std::string finalName = "";
 
     if (argv[1]!=NULL) {
         std::string path = argv[1];
@@ -38,7 +39,16 @@ int main(int argc, char* argv[])
     }
 
     if (argc > 1 && argv[2] != NULL) {
-        std::string option = argv[2];
+        std::string finalName = argv[2];
+        std::cout << "The new file name will be: " << finalName << "\n";
+    }
+    else {
+        std::cout << "There is no new file name !" << "\n";
+        //return 0;
+    }
+
+    if (argc > 2 && argv[3] != NULL) {
+        std::string option = argv[3];
         std::cout << "There is an option: " << option << "\n";
     }
     else {
@@ -46,14 +56,23 @@ int main(int argc, char* argv[])
     }
 
 
-    path = "C:/Users/Nama/Pictures/CPP";
+    path = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpg";
     if (fs::is_directory(fs::status(path))) {
-        std::cout << "Test"<<"\n";
+        //std::cout << "Test"<<"\n";
         for (const auto& entry : fs::directory_iterator(path)) {
-            if (entry.path().extension() == ".jpg" || entry.path().extension() == ".jpg") {
+            if (entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg") {
                 std::cout << entry.path() << std::endl;
             }
         }
+    }
+    else {
+        if (fs::path(path).extension() == ".jpeg" || fs::path(path).extension() == ".jpg") {
+            std::cout << "This file is a jpeg/jpg";
+        }
+        else if (fs::path(path).extension() == ".mpeg") {
+            std::cout << "This file is a mpeg";
+        }
+
     }
     /*
     path = "C:/Users/Nama/Pictures/CPP";
