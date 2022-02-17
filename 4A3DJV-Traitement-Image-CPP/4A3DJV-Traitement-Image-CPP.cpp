@@ -16,6 +16,7 @@
 #include <libavutil/avutil.h>
 #include <libavutil/imgutils.h> 
 #include <libavutil/timestamp.h>
+#include <algorithm>
 #include <filesystem> // C++17 standard header file name
 #include <filesystem> // Header file for pre-standard implementation
 
@@ -28,6 +29,7 @@ int main(int argc, char* argv[])
 
     if (argv[1]!=NULL) {
         std::string path = argv[1];
+        std::replace(path.begin(),path.end(), '\\', '/');
         std::cout << "There is a path: "<<path<<"\n";
     }
     else {
@@ -43,10 +45,24 @@ int main(int argc, char* argv[])
         //std::cout << "There is no option !";
     }
 
+
+    path = "C:/Users/Nama/Pictures/CPP";
+    if (fs::is_directory(fs::status(path))) {
+        std::cout << "Test"<<"\n";
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (entry.path().extension() == ".jpg" || entry.path().extension() == ".jpg") {
+                std::cout << entry.path() << std::endl;
+            }
+        }
+    }
+    /*
     path = "C:/Users/Nama/Pictures/CPP";
     for (const auto& entry : fs::directory_iterator(path)) {
-        std::cout << entry.path() << std::endl;
+        if (entry.path().extension() == ".jpg" || entry.path().extension() == ".jpeg") {
+            std::cout << entry.path() << std::endl;
+        }
     }
+    */
 
     return 0;
 }
