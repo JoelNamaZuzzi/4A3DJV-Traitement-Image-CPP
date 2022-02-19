@@ -59,6 +59,8 @@ int Image::readImg(const char* srcc) {
         printf("no error\n");
     }*/
 
+    srcc=this->srcc;
+
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
 

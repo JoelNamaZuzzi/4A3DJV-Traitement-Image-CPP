@@ -99,8 +99,9 @@ int main(int argc, char* argv[])
         Image* imgs = new Image[img_nb];
         for (const auto& entry : fs::directory_iterator(path)) {
             if (entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg") {
-                //std::cout << entry.path().string().c_str() << "\n";
-                imgs[i] = Image(entry.path().string().c_str());
+                std::string properpath = entry.path().string().c_str();
+                std::replace(properpath.begin(), properpath.end(), '\\', '/');
+                imgs[i] = Image(properpath.c_str());
                 i += 1;
             }
         }

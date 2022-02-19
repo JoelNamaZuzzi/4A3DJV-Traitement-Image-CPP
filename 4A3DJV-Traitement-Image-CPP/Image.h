@@ -27,7 +27,7 @@ class Image{
         	    	  	  
     public:        	    	  	  
         	    	  	  
-        Image(const char* s = "") :srcc(s) {};
+        Image(const char* s = " ") :srcc(s) {};
 
         /*~Image()
         {
