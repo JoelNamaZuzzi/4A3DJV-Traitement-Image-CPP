@@ -6,6 +6,7 @@
 #include <stdio.h> 
 #include <iomanip>
 #include <setjmp.h>
+#include <filesystem>
 
 /*Image::Image(const char* dstc, const char* srcc) {
 
@@ -16,13 +17,14 @@
     //writeImg(dstc);
 }*/
 
-const char* Image::getSRC() const {
-    return this->srcc;
+std::filesystem::path Image::getSRC() const {
+    //std::cout << this->srcc<<"test";
+    return this->fsp;
 }
 
-void Image::setSRC(const char* srcc) {
-    this->srcc = srcc;
-    std::cout << srcc << std::endl;
+void Image::setSRC(std::filesystem::path p) {
+    this->fsp = p;
+    //std::cout << srcc << std::endl;
 }
 
 ImageInfo& Image::getImages() const
@@ -66,10 +68,11 @@ ImageInfo Image::readImg() {
         printf("no error\n");
     }*/
 
-    const char* src = this->srcc;
-    
-    ImageInfo newImage;
+    //const char* src = this->srcc;
 
+    std::cout << src << "test"<<"\n";
+    ImageInfo newImage;
+    std::filesystem::path p = this->fsp;
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
 
@@ -79,7 +82,7 @@ ImageInfo Image::readImg() {
     unsigned long location = 0;
     int i = 0;
 
-    if ((fp = fopen(src, "rb"))== NULL) {
+    if ((fp = fopen(p.string().c_str() , "rb")) == NULL) {
         printf("Error: failed to open %s\n", src);
         exit(1);
     }

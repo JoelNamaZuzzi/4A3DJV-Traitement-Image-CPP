@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <jpeglib.h>
+#include <filesystem>
 
 typedef struct {
     uint8_t* data;   // raw data
@@ -21,13 +22,14 @@ class Image{
         size_t nbImages;
         const char* srcc;
         const char* dstc;
+        std::filesystem::path fsp;
 
         
         	    	  	  
     public:        	    	  	  
         	    	  	  
         //Image(const char* dstc,const char* srcc);
-        Image(const char* s = "") :srcc(s) {};
+        Image(std::filesystem::path p = "") :fsp(p) {};
 
         /*~Image()
         {
@@ -52,8 +54,8 @@ class Image{
         int cop(ImageInfo image,const char* copy);
         int writeImg(const char* dstc);
 
-        const char* getSRC() const;
-        void setSRC(const char* srcc);
+        std::filesystem::path getSRC() const;
+        void setSRC(std::filesystem::path);
 
         ImageInfo& getImages() const;
         //void setImages(ImageInfo* images);

@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
     bool isDir = FALSE;
     int img_nb=0;
     int i = 0;
+    std::string properpath;
 
     if (argv[1]!=NULL) {
         std::string path = argv[1];
@@ -61,8 +62,8 @@ int main(int argc, char* argv[])
         //std::cout << "There is no option !";
     }
 
-    pathsrcc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpeg";
-    pathdstc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic_modif.jpeg";
+    //pathsrcc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpeg";
+    //pathdstc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic_modif.jpeg";
     path = "C:/Users/Nama/Pictures/CPP";
 
     if (fs::is_directory(fs::status(path))) {
@@ -97,16 +98,26 @@ int main(int argc, char* argv[])
 
     if (isDir) {
         Image* imgs = new Image[img_nb];
+        //std::cout << "test";
         for (const auto& entry : fs::directory_iterator(path)) {
+            //std::cout << "test";
             if (entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg") {
-                std::string properpath = entry.path().string().c_str();
-                std::replace(properpath.begin(), properpath.end(), '\\', '/');
-                imgs[i] = Image(properpath.c_str());
+                
+                //properpath = entry.path().string().c_str();
+                //std::replace(properpath.begin(), properpath.end(), '\\', '/');
+                imgs[i] = Image(entry.path());
+                //std::cout << imgs[i].getSRC() << "\n";
+                //imgs[i].readImg(entry.path());
                 i += 1;
             }
+            //std::cout << imgs[0].getSRC()<<"\n";
         }
-        //std::cout << imgs << "\n";
         i = 0;
+        std::cout << img_nb << "\n";
+        for (i = 0; i < img_nb; i++) {
+            std::cout << imgs[i].getSRC() << "test third for" << "\n";
+            imgs[i].readImg();
+        }
     }
     
     return 0;
