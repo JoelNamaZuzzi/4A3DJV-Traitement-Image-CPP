@@ -6,23 +6,23 @@
 #include <stdio.h> 
 #include <iomanip>
 #include <setjmp.h>
+#include <filesystem>
 
 /*Image::Image(const char* dstc, const char* srcc) {
-
     this->dstc = dstc;
     this->srcc = srcc;
-
     readImg(srcc);
     //writeImg(dstc);
 }*/
 
-const char* Image::getSRC() const {
-    return this->srcc;
+std::filesystem::path Image::getSRC() const {
+    //std::cout << this->srcc<<"test";
+    return this->fsp;
 }
 
-void Image::setSRC(const char* srcc) {
-    this->srcc = srcc;
-    std::cout << srcc << std::endl;
+void Image::setSRC(std::filesystem::path p) {
+    this->fsp = p;
+    //std::cout << srcc << std::endl;
 }
 
 ImageInfo& Image::getImages() const
@@ -66,20 +66,21 @@ ImageInfo Image::readImg() {
         printf("no error\n");
     }*/
 
-    const char* src = this->srcc;
-    
-    ImageInfo newImage;
+    //const char* src = this->srcc;
 
+    //std::cout << src << "test" << "\n";
+    ImageInfo newImage;
+    std::filesystem::path p = this->fsp;
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
 
     JSAMPROW row_pointer[1];
 
-    FILE* fp; 
+    FILE* fp;
     unsigned long location = 0;
     int i = 0;
 
-    if ((fp = fopen(src, "rb"))== NULL) {
+    if ((fp = fopen(p.string().c_str(), "rb")) == NULL) {
         printf("Error: failed to open %s\n", src);
         exit(1);
     }
@@ -121,11 +122,16 @@ ImageInfo Image::readImg() {
         perror("Error renaming file");
     else
         std::cout << "File renamed successfully";*/
-    //cop(newImage,this->dstc);
+        //cop(newImage,this->dstc);
+
+    std::string newpath = p.string().c_str();
+    newpath.insert(47, "Modif");
+    std::cout << newpath;
+    writeImg(newImage, newpath.c_str());
     return newImage;
 }
 
-int Image::cop(ImageInfo image,const char* copy)
+int Image::cop(ImageInfo image, const char* copy)
 {
 
     int width = image.width;
@@ -138,8 +144,8 @@ int Image::cop(ImageInfo image,const char* copy)
 
     JSAMPROW row_pointer[1];
     FILE* outfile;
-    if ((outfile = fopen("C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg", "wb")) == NULL) {
-        printf("Error: failed to open %s\n", "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg");
+    if ((outfile = fopen(copy, "wb")) == NULL) {
+        printf("Error: failed to open %s\n", copy);
         return -1;
     }
     else {
@@ -168,9 +174,7 @@ int Image::cop(ImageInfo image,const char* copy)
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = 255;
 
             /*raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]; // Red Pixel
-
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]; // Green Pixel
-
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] ; // Blue Pixel*/
 
             int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
@@ -193,11 +197,11 @@ int Image::cop(ImageInfo image,const char* copy)
     return 1;
 }
 
-int Image::writeImg(const char* dstc)
+int Image::writeImg(ImageInfo image,const char* dstc)
 {
 
-    int width = widthImg;
-    int height = heightImg;
+    int width = image.width;
+    int height = image.height;
     int bytes_per_pixel = 3;   /* or 1 for GRACYSCALE images */
     int color_space = JCS_RGB;
 
@@ -229,38 +233,30 @@ int Image::writeImg(const char* dstc)
 
     /*int a_red = 255;
     int b_red = 0;
-
     int a_green = 255;
     int b_green = 0;
-
     int a_blue = 255;
     int b_blue = 0;
-
     for (int i = 0; i < cinfo.image_height; i++) {
         for (int j = 0; j < cinfo.image_width; j++) {
             int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int v_red = red;
-
             if (v_red < a_red) {
                 a_red = v_red;
             }
             if (v_red > b_red) {
                 b_red = v_red;
             }
-
             int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int v_green = green;
-
             if (v_green < a_green) {
                 a_green = v_green;
             }
             if (v_green > b_green) {
                 b_green = v_green;
             }
-
             int blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int v_blue = blue;
-
             if (v_blue < a_blue) {
                 a_blue = v_blue;
             }
@@ -269,31 +265,25 @@ int Image::writeImg(const char* dstc)
             }
         }
     }
-
     int A_red = a_red - 100;
     int B_red = b_red + 100;
-
     int A_green = a_green - 100;
     int B_green = b_green + 100;
-
     int A_blue = a_blue - 100;
     int B_blue = b_blue + 100;
-
     for (int i = 0; i < cinfo.image_height; i++) {
         for (int j = 0; j < cinfo.image_width; j++) {
             int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int v_red = red;
-            
+
             int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int v_green = green;
-
             int blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int v_blue = blue;
-
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = A_red + (B_red - A_red) * (v_red - a_red) / (b_red - a_red);
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = A_green + (B_green - A_green) * (v_green - a_green) / (b_green - a_green);
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = A_blue + (B_blue - A_blue) * (v_blue - a_blue) / (b_blue - a_blue);
-            
+
         }
     }*/
 
@@ -301,12 +291,12 @@ int Image::writeImg(const char* dstc)
     for (int i = 0; i < cinfo.image_height; i++) {
         for (int j = 0; j < cinfo.image_width; j++) {
             // Pixel (i,j)
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]-50; // Red Pixel
-            
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]-50; // Green Pixel
-            
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2]+10; // Blue Pixel
-            
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] - 50; // Red Pixel
+
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] - 50; // Green Pixel
+
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] + 10; // Blue Pixel
+
             int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]);
             int blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2]);
