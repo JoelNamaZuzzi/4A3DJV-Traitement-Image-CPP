@@ -17,8 +17,7 @@
 #include <libavutil/imgutils.h> 
 #include <libavutil/timestamp.h>
 #include <algorithm>
-#include <filesystem> // C++17 standard header file name
-#include <filesystem> // Header file for pre-standard implementation
+#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -27,6 +26,8 @@ int main(int argc, char* argv[])
 {
     std::string path = "";
     std::string finalName = "";
+    const char* pathsrcc;
+    const char* pathdstc;
 
     if (argv[1]!=NULL) {
         std::string path = argv[1];
@@ -55,12 +56,15 @@ int main(int argc, char* argv[])
         //std::cout << "There is no option !";
     }
 
+    pathsrcc = "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg";
+    pathdstc = "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/groguModif.jpg";
+    path = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpeg";
 
-    path = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpg";
     if (fs::is_directory(fs::status(path))) {
         //std::cout << "Test"<<"\n";
         for (const auto& entry : fs::directory_iterator(path)) {
             if (entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg") {
+                Image(pathsrc, pathdstc, pathsrcc);
                 std::cout << entry.path() << std::endl;
             }
         }
@@ -69,8 +73,9 @@ int main(int argc, char* argv[])
         if (fs::path(path).extension() == ".jpeg" || fs::path(path).extension() == ".jpg") {
             std::cout << "This file is a jpeg/jpg";
         }
-        else if (fs::path(path).extension() == ".mpeg") {
+        else if (fs::path(path).extension() == ".mpeg") { 
             std::cout << "This file is a mpeg";
+
         }
 
     }
@@ -82,6 +87,8 @@ int main(int argc, char* argv[])
         }
     }
     */
+
+
 
     return 0;
 }
