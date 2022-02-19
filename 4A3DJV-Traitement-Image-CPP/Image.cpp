@@ -7,25 +7,32 @@
 #include <iomanip>
 #include <setjmp.h>
 
-/*Image::Image(const char* srcc) {
-    //std::cout << src << " ";
-    //std::cout << dst << " ";
+/*Image::Image(const char* dstc, const char* srcc) {
 
-    //this->dstc = dstc;
+    this->dstc = dstc;
     this->srcc = srcc;
 
     readImg(srcc);
     //writeImg(dstc);
 }*/
 
-
-std::string Image::getSrc() const {
-    return this->src;
+const char* Image::getSRC() const {
+    return this->srcc;
 }
 
-std::string Image::getDst() const {
-    return this->dst;
+void Image::setSRC(const char* srcc) {
+    this->srcc = srcc;
+    std::cout << srcc << std::endl;
 }
+
+ImageInfo& Image::getImages() const
+{
+    return *images;
+}
+
+/*void setImages(ImageInfo* images) {
+    this->images = images;
+}*/
 
 int convertColor(int color) {
 
@@ -41,7 +48,7 @@ unsigned char* raw_image = NULL;
 int widthImg;
 int heightImg;
 
-int Image::readImg(const char* srcc) {
+ImageInfo Image::readImg() {
 
     //std::cout << src <<"There is nothing !\n";
 
@@ -59,7 +66,9 @@ int Image::readImg(const char* srcc) {
         printf("no error\n");
     }*/
 
-    srcc=this->srcc;
+    const char* src = this->srcc;
+    
+    ImageInfo newImage;
 
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -70,9 +79,9 @@ int Image::readImg(const char* srcc) {
     unsigned long location = 0;
     int i = 0;
 
-    if ((fp = fopen(srcc, "rb"))== NULL) {
-        printf("Error: failed to open %s\n", srcc);
-        return false;
+    if ((fp = fopen(src, "rb"))== NULL) {
+        printf("Error: failed to open %s\n", src);
+        exit(1);
     }
     else {
         printf("no error");
@@ -94,6 +103,11 @@ int Image::readImg(const char* srcc) {
         for (i = 0; i < cinfo.image_width * cinfo.num_components; i++)
             raw_image[location++] = row_pointer[0][i];
     }
+    newImage.width = cinfo.image_width;
+    newImage.height = cinfo.image_height;
+    newImage.ch = cinfo.output_components;
+    newImage.data = new uint8_t[newImage.width * newImage.height * newImage.ch];;
+
     widthImg = cinfo.image_width;
     heightImg = cinfo.image_height;
 
@@ -107,14 +121,15 @@ int Image::readImg(const char* srcc) {
         perror("Error renaming file");
     else
         std::cout << "File renamed successfully";*/
-    cop(this->dstc);
-    return 0;
+    //cop(newImage,this->dstc);
+    return newImage;
 }
 
-int Image::cop(const char* copy)
+int Image::cop(ImageInfo image,const char* copy)
 {
-    int width = widthImg;
-    int height = heightImg;
+
+    int width = image.width;
+    int height = image.height;
     int bytes_per_pixel = 3;   /* or 1 for GRACYSCALE images */
     int color_space = JCS_RGB;
 
@@ -123,8 +138,8 @@ int Image::cop(const char* copy)
 
     JSAMPROW row_pointer[1];
     FILE* outfile;
-    if ((outfile = fopen(copy, "wb")) == NULL) {
-        printf("Error: failed to open %s\n", copy);
+    if ((outfile = fopen("C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg", "wb")) == NULL) {
+        printf("Error: failed to open %s\n", "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg");
         return -1;
     }
     else {
@@ -134,8 +149,6 @@ int Image::cop(const char* copy)
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
     jpeg_stdio_dest(&cinfo, outfile);
-
-    int widthd = cinfo.image_width;
 
     cinfo.image_width = width;
     cinfo.image_height = height;
@@ -153,6 +166,12 @@ int Image::cop(const char* copy)
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = 255;
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = 255;
             raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = 255;
+
+            /*raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]; // Red Pixel
+
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]; // Green Pixel
+
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] ; // Blue Pixel*/
 
             int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
             int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]);
@@ -198,8 +217,6 @@ int Image::writeImg(const char* dstc)
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
     jpeg_stdio_dest(&cinfo, outfile);
-
-    int widthd = cinfo.image_width;
 
     cinfo.image_width = width;
     cinfo.image_height = height;

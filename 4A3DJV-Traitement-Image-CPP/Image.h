@@ -17,8 +17,7 @@ typedef struct {
 class Image{        	    	  	  
     private:        	
         ImageInfo* images;
-        std::string src;
-        std::string dst;
+        std::string src, dst;
         size_t nbImages;
         const char* srcc;
         const char* dstc;
@@ -27,7 +26,8 @@ class Image{
         	    	  	  
     public:        	    	  	  
         	    	  	  
-        Image(const char* s = " ") :srcc(s) {};
+        //Image(const char* dstc,const char* srcc);
+        Image(const char* s = "") :srcc(s) {};
 
         /*~Image()
         {
@@ -37,13 +37,26 @@ class Image{
             }
             std::cout << "image manager deconstructor called" << std::endl;
             delete[] images;
-        };*/
-        	    	  	  
-        int readImg(const char* srcc);
-        int cop(const char* copy);
+        };
+        
+        ImageInfo getBackground() const;
+        void freeImage(ImageInfo& image) const;
+
+        size_t getNBImages() const;
+        void setNBImages(size_t nbImages);
+
+        ImageInfo& getImages() const;
+        void setImages(ImageInfo* listPath);*/
+
+        ImageInfo readImg();
+        int cop(ImageInfo image,const char* copy);
         int writeImg(const char* dstc);
-        	    	  	  
-        std::string getSrc() const;        	    	  	  
-        std::string getDst() const;
+
+        const char* getSRC() const;
+        void setSRC(const char* srcc);
+
+        ImageInfo& getImages() const;
+        //void setImages(ImageInfo* images);
+
 };        	    	  	   
 #endif     	    	  	  
