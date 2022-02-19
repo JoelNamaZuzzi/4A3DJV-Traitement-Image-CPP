@@ -7,16 +7,16 @@
 #include <iomanip>
 #include <setjmp.h>
 
-Image::Image(std::string src, const char* dstc, const char* srcc) {
+/*Image::Image(const char* srcc) {
     //std::cout << src << " ";
     //std::cout << dst << " ";
 
-    this->dstc = dstc;
+    //this->dstc = dstc;
     this->srcc = srcc;
 
     readImg(srcc);
-    writeImg(dstc);
-}
+    //writeImg(dstc);
+}*/
 
 
 std::string Image::getSrc() const {

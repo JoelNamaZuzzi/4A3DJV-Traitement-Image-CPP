@@ -18,6 +18,8 @@
 #include <libavutil/timestamp.h>
 #include <algorithm>
 #include <filesystem>
+#include "Image.h"
+#include<string>
 
 namespace fs = std::filesystem;
 
@@ -28,6 +30,9 @@ int main(int argc, char* argv[])
     std::string finalName = "";
     const char* pathsrcc;
     const char* pathdstc;
+    bool isDir = FALSE;
+    int img_nb=0;
+    int i = 0;
 
     if (argv[1]!=NULL) {
         std::string path = argv[1];
@@ -56,16 +61,18 @@ int main(int argc, char* argv[])
         //std::cout << "There is no option !";
     }
 
-    pathsrcc = "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg";
-    pathdstc = "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/groguModif.jpg";
-    path = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpeg";
+    pathsrcc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpeg";
+    pathdstc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic_modif.jpeg";
+    path = "C:/Users/Nama/Pictures/CPP";
 
     if (fs::is_directory(fs::status(path))) {
         //std::cout << "Test"<<"\n";
+        isDir = TRUE;
         for (const auto& entry : fs::directory_iterator(path)) {
             if (entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg") {
-                Image(pathsrc, pathdstc, pathsrcc);
-                std::cout << entry.path() << std::endl;
+                //Image(pathsrcc);
+                img_nb += 1;
+                //std::cout << entry.path() << std::endl;
             }
         }
     }
@@ -88,8 +95,19 @@ int main(int argc, char* argv[])
     }
     */
 
-
-
+    if (isDir) {
+        Image* imgs = new Image[img_nb];
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg") {
+                //std::cout << entry.path().string().c_str() << "\n";
+                imgs[i] = Image(entry.path().string().c_str());
+                i += 1;
+            }
+        }
+        //std::cout << imgs << "\n";
+        i = 0;
+    }
+    
     return 0;
 }
 

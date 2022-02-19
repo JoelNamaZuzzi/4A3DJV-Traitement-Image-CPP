@@ -17,7 +17,8 @@ typedef struct {
 class Image{        	    	  	  
     private:        	
         ImageInfo* images;
-        std::string src, dst;
+        std::string src;
+        std::string dst;
         size_t nbImages;
         const char* srcc;
         const char* dstc;
@@ -26,7 +27,7 @@ class Image{
         	    	  	  
     public:        	    	  	  
         	    	  	  
-        Image(std::string src, const char* dstc,const char* srcc);
+        Image(const char* s = "") :srcc(s) {};
 
         /*~Image()
         {
