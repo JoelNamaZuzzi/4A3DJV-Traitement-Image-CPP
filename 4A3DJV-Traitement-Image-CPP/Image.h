@@ -7,27 +7,42 @@
 #include <stdint.h>
 #include <jpeglib.h>
 
-class Image {
-private:
-    std::string src, dst;
-    const char* srcc;
+typedef struct {
+    uint8_t* data;   // raw data
+    uint32_t width;
+    uint32_t height;
+    uint32_t ch;     // color channels
+} ImageInfo;
 
-    typedef struct {
-        uint8_t* data;   // raw data
-        uint32_t width;
-        uint32_t height;
-        uint32_t ch;     // color channels
-    } ImageInfo;
+class Image{        	    	  	  
+    private:        	
+        ImageInfo* images;
+        std::string src, dst;
+        size_t nbImages;
+        const char* srcc;
+        const char* dstc;
 
-public:
+        
+        	    	  	  
+    public:        	    	  	  
+        	    	  	  
+        Image(std::string src, const char* dstc,const char* srcc);
 
-    Image(std::string src, std::string dst, const char* srcc);
-
-    int readImg(std::string src, const char* srcc);
-    int writeImg(const char* srcc);
-
-    std::string getSrc() const;
-    std::string getDst() const;
-};
-#endif    
-
+        /*~Image()
+        {
+            for (uint32_t i = 0; i < nbImages; i++)
+            {
+                freeImage(images[i]);
+            }
+            std::cout << "image manager deconstructor called" << std::endl;
+            delete[] images;
+        };*/
+        	    	  	  
+        int readImg(const char* srcc);
+        int cop(const char* copy);
+        int writeImg(const char* dstc);
+        	    	  	  
+        std::string getSrc() const;        	    	  	  
+        std::string getDst() const;
+};        	    	  	   
+#endif     	    	  	  
