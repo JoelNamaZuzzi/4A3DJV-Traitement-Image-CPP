@@ -7,15 +7,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <jpeglib.h>
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavdevice/avdevice.h>
-#include <libswscale/swscale.h>
-#include <libavfilter/avfilter.h>
-#include <libswresample/swresample.h>
-#include <libavutil/avutil.h>
-#include <libavutil/imgutils.h> 
-#include <libavutil/timestamp.h>
 #include <filesystem> // C++17 standard header file name
 #include <filesystem> // Header file for pre-standard implementation
 
