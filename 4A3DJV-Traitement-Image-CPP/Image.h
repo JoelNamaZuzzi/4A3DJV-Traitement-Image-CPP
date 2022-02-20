@@ -27,8 +27,7 @@ class Image{
         
         	    	  	  
     public:        	    	  	  
-        	    	  	  
-        //Image(const char* dstc,const char* srcc);
+        //Constructeur par defaut
         Image(std::filesystem::path p = "") :fsp(p) {};
 
         /*~Image()
@@ -50,13 +49,22 @@ class Image{
         ImageInfo& getImages() const;
         void setImages(ImageInfo* listPath);*/
 
+        //Chargement de l'Image
         ImageInfo readImg();
+
+        //Copie de l'Image
         int cop(ImageInfo image,const char* copy);
+
+        //Ecriture sur l'Image
         int writeImg(const char* dstc);
 
+        //Getter du chemin
         std::filesystem::path getSRC() const;
+
+        //Setter su chemin
         void setSRC(std::filesystem::path);
 
+        //Info de l'Image
         ImageInfo& getImages() const;
         //void setImages(ImageInfo* images);
 

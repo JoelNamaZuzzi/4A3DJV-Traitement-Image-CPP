@@ -8,23 +8,14 @@
 #include <setjmp.h>
 #include <filesystem>
 
-/*Image::Image(const char* dstc, const char* srcc) {
-
-    this->dstc = dstc;
-    this->srcc = srcc;
-
-    readImg(srcc);
-    //writeImg(dstc);
-}*/
-
+//Getter du chemin
 std::filesystem::path Image::getSRC() const {
-    //std::cout << this->srcc<<"test";
     return this->fsp;
 }
 
+//Setter su chemin
 void Image::setSRC(std::filesystem::path p) {
     this->fsp = p;
-    //std::cout << srcc << std::endl;
 }
 
 ImageInfo& Image::getImages() const
@@ -36,6 +27,7 @@ ImageInfo& Image::getImages() const
     this->images = images;
 }*/
 
+//Convertisseur de la couleurs des Images d'hexa en décimal
 int convertColor(int color) {
 
     std::stringstream ss;
@@ -50,6 +42,7 @@ unsigned char* raw_image = NULL;
 int widthImg;
 int heightImg;
 
+//Chargement de l'Image
 ImageInfo Image::readImg() {
 
     //std::cout << src <<"There is nothing !\n";
@@ -128,6 +121,7 @@ ImageInfo Image::readImg() {
     return newImage;
 }
 
+//Copie de l'Image
 int Image::cop(ImageInfo image,const char* copy)
 {
 
@@ -196,6 +190,7 @@ int Image::cop(ImageInfo image,const char* copy)
     return 1;
 }
 
+//Ecriture sur l'Image
 int Image::writeImg(const char* dstc)
 {
 
