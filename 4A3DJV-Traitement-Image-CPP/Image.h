@@ -13,13 +13,14 @@ typedef struct {
     uint32_t width;
     uint32_t height;
     uint32_t ch;     // color channels
+    std::filesystem::path path;
 } ImageInfo;
 
 class Image {
 private:
     ImageInfo* images;
     std::string src, dst;
-    size_t nbImages;
+    int nbImages;
     const char* srcc;
     const char* dstc;
     std::filesystem::path fsp;
@@ -28,35 +29,20 @@ private:
 
 public:
 
-    //Image(const char* dstc,const char* srcc);
     Image(std::filesystem::path p = "") :fsp(p) {};
 
-    /*~Image()
-    {
-        for (uint32_t i = 0; i < nbImages; i++)
-        {
-            freeImage(images[i]);
-        }
-        std::cout << "image manager deconstructor called" << std::endl;
-        delete[] images;
-    };
-
-    ImageInfo getBackground() const;
-    void freeImage(ImageInfo& image) const;
-    size_t getNBImages() const;
-    void setNBImages(size_t nbImages);
-    ImageInfo& getImages() const;
-    void setImages(ImageInfo* listPath);*/
-
     ImageInfo readImg();
-    int cop(ImageInfo image, const char* copy);
-    int writeImg(ImageInfo image, const char* dstc);
+    int cop(ImageInfo image);
+    int getBackground();
 
     std::filesystem::path getSRC() const;
     void setSRC(std::filesystem::path);
 
     ImageInfo& getImages() const;
-    //void setImages(ImageInfo* images);
+    void setImages(ImageInfo* images);
+
+    int getNBImages() const;
+    void setNBImages(int nbImages);
 
 };
 #endif     	    	  
