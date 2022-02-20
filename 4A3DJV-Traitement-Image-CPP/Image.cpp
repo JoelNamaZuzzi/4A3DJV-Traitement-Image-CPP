@@ -8,12 +8,10 @@
 #include <setjmp.h>
 #include <filesystem>
 
-//Getter du chemin
 std::filesystem::path Image::getSRC() const {
     return this->fsp;
 }
 
-//Setter su chemin
 void Image::setSRC(std::filesystem::path p) {
     this->fsp = p;
 }
@@ -23,13 +21,20 @@ ImageInfo& Image::getImages() const
     return *images;
 }
 
-/*void setImages(ImageInfo* images) {
+void Image::setImages(ImageInfo* images) {
     this->images = images;
-}*/
+}
 
-//Convertisseur de la couleurs des Images d'hexa en décimal
+int Image::getNBImages() const {
+    return this->nbImages;
+}
+void Image::setNBImages(int nbImgs) {
+    this->nbImages = nbImgs;
+}
+
 int convertColor(int color) {
 
+    //permet de transformer la valeur en entré en réel int, car la couleur du pixel récup est en hex donc pour le traitement et les manips cest pas ouf
     std::stringstream ss;
     unsigned int valhex;
     ss << std::hex << (int)color;
@@ -37,15 +42,40 @@ int convertColor(int color) {
     return valhex;
 }
 
+void triBulle(int* tab, int n)
+{
+    //pour trier le tableau en entrée
+    bool stop;
+    int tmp, j = 0;
+    do
+    {
+        stop = true;
+            for (int i = n - 1; i > j; --i)
+            {
+                if (tab[i] < tab[i - 1]) //l element le plus petit remonte vers le debut
+                {
+                    tmp = tab[i];
+                    tab[i] = tab[i - 1];
+                    tab[i - 1] = tmp;
+                    stop = false;
+                }
+            }
+        j++;
+    } while (!stop);//si pas de changement à un passage -> tab trie
+}
+
 unsigned char* raw_image = NULL;
+
 
 int widthImg;
 int heightImg;
+int nbImages;
 
-//Chargement de l'Image
 ImageInfo Image::readImg() {
+    raw_image = NULL;
 
-    //std::cout << src <<"There is nothing !\n";
+
+    //autre manière d'ouvrir un fichier
 
     //cinfo.err = jpeg_std_error(jerr);
 
@@ -61,9 +91,7 @@ ImageInfo Image::readImg() {
         printf("no error\n");
     }*/
 
-    //const char* src = this->srcc;
 
-    std::cout << src << "test"<<"\n";
     ImageInfo newImage;
     std::filesystem::path p = this->fsp;
     struct jpeg_decompress_struct cinfo;
@@ -71,11 +99,11 @@ ImageInfo Image::readImg() {
 
     JSAMPROW row_pointer[1];
 
-    FILE* fp; 
+    FILE* fp;
     unsigned long location = 0;
     int i = 0;
-
-    if ((fp = fopen(p.string().c_str() , "rb")) == NULL) {
+    //ouverture du fichier
+    if ((fp = fopen(p.string().c_str(), "rb")) == NULL) {
         printf("Error: failed to open %s\n", src);
         exit(1);
     }
@@ -83,29 +111,30 @@ ImageInfo Image::readImg() {
         printf("no error");
     }
 
+    //commencement de la lecture du fichier
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_decompress(&cinfo);
     jpeg_stdio_src(&cinfo, fp);
     jpeg_read_header(&cinfo, TRUE);
     jpeg_start_decompress(&cinfo);
-    printf("\ncomponents = %d\n", cinfo.num_components);
+    //printf("\ncomponents = %d\n", cinfo.num_components);
 
     raw_image = (unsigned char*)malloc(cinfo.output_width * cinfo.output_height * cinfo.num_components);
     row_pointer[0] = (unsigned char*)malloc(cinfo.output_width * cinfo.num_components);
 
+    //lecture
     while (cinfo.output_scanline < cinfo.image_height)
     {
         jpeg_read_scanlines(&cinfo, row_pointer, 1);
         for (i = 0; i < cinfo.image_width * cinfo.num_components; i++)
             raw_image[location++] = row_pointer[0][i];
     }
+
+    //donnée à retourner pour être ajouter à notre tableau d'images
     newImage.width = cinfo.image_width;
     newImage.height = cinfo.image_height;
     newImage.ch = cinfo.output_components;
-    newImage.data = new uint8_t[newImage.width * newImage.height * newImage.ch];;
-
-    widthImg = cinfo.image_width;
-    heightImg = cinfo.image_height;
+    newImage.data = new uint8_t[newImage.width * newImage.height * newImage.ch];
 
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
@@ -113,30 +142,30 @@ ImageInfo Image::readImg() {
 
     fclose(fp);
 
-    /*if (std::rename(srcc, "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg") != 0)
-        perror("Error renaming file");
-    else
-        std::cout << "File renamed successfully";*/
-    //cop(newImage,this->dstc);
+    newImage.path = p;
+    //writeImg(newImage, newpath.c_str());
+
     return newImage;
 }
 
-//Copie de l'Image
-int Image::cop(ImageInfo image,const char* copy)
+int Image::cop(ImageInfo image)
 {
-
+    //cop permet de créer une image de la meme taille que celle passé en paramètre en blanc
     int width = image.width;
     int height = image.height;
     int bytes_per_pixel = 3;   /* or 1 for GRACYSCALE images */
     int color_space = JCS_RGB;
+
+    const char* copy = "../Image/Vide.png";
 
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
 
     JSAMPROW row_pointer[1];
     FILE* outfile;
-    if ((outfile = fopen("C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg", "wb")) == NULL) {
-        printf("Error: failed to open %s\n", "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images/grogu.jpg");
+    //wb pour écrire ou création d'un nouveau fichier en binaire
+    if ((outfile = fopen(copy, "wb")) == NULL) {
+        printf("Error: failed to open %s\n", copy);
         return -1;
     }
     else {
@@ -156,23 +185,13 @@ int Image::cop(ImageInfo image,const char* copy)
 
     jpeg_start_compress(&cinfo, TRUE);
 
-
+    //changement des pixels de couleur
     for (int i = 0; i < cinfo.image_height; i++) {
         for (int j = 0; j < cinfo.image_width; j++) {
             // Pixel (i,j)
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = 255;
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = 255;
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = 255;
-
-            /*raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]; // Red Pixel
-
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]; // Green Pixel
-
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] ; // Blue Pixel*/
-
-            int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]);
-            int blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2]);
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = 255; // Red Pixel
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = 255; // Green Pixel
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = 255;// Blue Pixel
         }
     }
 
@@ -190,13 +209,21 @@ int Image::cop(ImageInfo image,const char* copy)
     return 1;
 }
 
-//Ecriture sur l'Image
-int Image::writeImg(const char* dstc)
+int Image::getBackground()
 {
+    //récupération du background des images
 
-    int width = widthImg;
-    int height = heightImg;
-    int bytes_per_pixel = 3;   /* or 1 for GRACYSCALE images */
+    const char* dstc = "../Image/Background.png";//non de l'image à créer ou modifier
+    int nb_images = this->nbImages;
+    Image* imgs = new Image[nb_images];
+
+    /*for (int i = 0; i < this->nbImages; i++) {
+        std::cout << this->nbImages << " " << images[i].path.string().c_str() << " a" << std::endl;
+    }*/
+    
+    int width = images[0].width;
+    int height = images[0].height;
+    int bytes_per_pixel = 3;
     int color_space = JCS_RGB;
 
     struct jpeg_compress_struct cinfo;
@@ -220,102 +247,104 @@ int Image::writeImg(const char* dstc)
     cinfo.image_height = height;
     cinfo.input_components = bytes_per_pixel;
     cinfo.in_color_space = JCS_RGB;
-
+    
     jpeg_set_defaults(&cinfo);
 
     jpeg_start_compress(&cinfo, TRUE);
 
-    /*int a_red = 255;
-    int b_red = 0;
 
-    int a_green = 255;
-    int b_green = 0;
+    int red;
+    int green;
+    int blue;
+    //tableaux où seront stockés les couleurs des différents pixels des images car sinon le programmes si on load et récup à chaque pixel par pixel
+    int** r_tab = new int* [nb_images];
+    for (int i = 0; i < nb_images; i++) {
 
-    int a_blue = 255;
-    int b_blue = 0;
+        r_tab[i] = new int[images[0].height * images[0].width];
 
-    for (int i = 0; i < cinfo.image_height; i++) {
-        for (int j = 0; j < cinfo.image_width; j++) {
-            int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int v_red = red;
+    }
 
-            if (v_red < a_red) {
-                a_red = v_red;
-            }
-            if (v_red > b_red) {
-                b_red = v_red;
-            }
+    int** g_tab = new int* [nb_images];
+    for (int j = 0; j < nb_images; j++) {
 
-            int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int v_green = green;
+        g_tab[j] = new int[images[0].height * images[0].width];
 
-            if (v_green < a_green) {
-                a_green = v_green;
-            }
-            if (v_green > b_green) {
-                b_green = v_green;
-            }
+    }
 
-            int blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int v_blue = blue;
+    int** b_tab = new int* [nb_images];
+    for (int k = 0; k < nb_images; k++) {
 
-            if (v_blue < a_blue) {
-                a_blue = v_blue;
-            }
-            if (v_blue > b_blue) {
-                b_blue = v_blue;
+        b_tab[k] = new int[images[0].height * images[0].width];
+
+    }
+
+    //récupétation des pixels des images
+    for (int k = 0; k < nb_images; k++) {
+        imgs[0] = Image(images[k].path);
+        imgs[0].readImg();
+        int counter = 0;
+
+        for (int i = 0; i < cinfo.image_height; i++) {
+            for (int j = 0; j < cinfo.image_width; j++) {
+                
+                // Pixel (i,j)
+
+
+                red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
+                green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]);
+                blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2]);
+
+                r_tab[k][counter] = red;
+                g_tab[k][counter] = green;
+                b_tab[k][counter] = blue;
+
+                counter++;
+
+
+                //std::cout << counter << std::endl;
+                //std::cout << "red :" << red << " green: " << green << " blue : " << blue << " " << std::endl;
             }
         }
     }
 
-    int A_red = a_red - 100;
-    int B_red = b_red + 100;
-
-    int A_green = a_green - 100;
-    int B_green = b_green + 100;
-
-    int A_blue = a_blue - 100;
-    int B_blue = b_blue + 100;
-
+    // algo pour avoir les médians du pixel des images
+    int counter = 0;
     for (int i = 0; i < cinfo.image_height; i++) {
         for (int j = 0; j < cinfo.image_width; j++) {
-            int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int v_red = red;
-            
-            int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int v_green = green;
+            int* r_med = new int[nb_images];
+            int* g_med = new int[nb_images];
+            int* b_med = new int[nb_images];
 
-            int blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int v_blue = blue;
+            for (int k = 0; k < nb_images; k++) {
 
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = A_red + (B_red - A_red) * (v_red - a_red) / (b_red - a_red);
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = A_green + (B_green - A_green) * (v_green - a_green) / (b_green - a_green);
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = A_blue + (B_blue - A_blue) * (v_blue - a_blue) / (b_blue - a_blue);
-            
-        }
-    }*/
+                r_med[k] = r_tab[k][counter];
+                g_med[k] = g_tab[k][counter];
+                b_med[k] = b_tab[k][counter];
 
+            }
 
-    for (int i = 0; i < cinfo.image_height; i++) {
-        for (int j = 0; j < cinfo.image_width; j++) {
-            // Pixel (i,j)
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]-50; // Red Pixel
-            
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]-50; // Green Pixel
-            
-            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2]+10; // Blue Pixel
-            
-            int red = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0]);
-            int green = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1]);
-            int blue = convertColor((int)raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2]);
+            triBulle(r_med, nb_images);
+            triBulle(g_med, nb_images);
+            triBulle(b_med, nb_images);
 
-            //std::cout << "red :" << red << " green: " << green << " blue : " << blue << " " << std::endl;
+            red = r_med[(int)nb_images / 2];
+            green = g_med[(int)nb_images / 2];
+            blue = b_med[(int)nb_images / 2];
+
+            //changement de la couleur du pixel avec la valeur médiane
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 0] = red; // Red Pixel
+
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 1] = green; // Green Pixel
+
+            raw_image[(i * cinfo.image_width * 3) + (j * 3) + 2] = blue; // Blue Pixel
+
+            counter++;
         }
     }
+
 
     while (cinfo.next_scanline < cinfo.image_height)
     {
-
         row_pointer[0] = &raw_image[cinfo.next_scanline * cinfo.image_width * cinfo.input_components];
         jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
@@ -324,5 +353,6 @@ int Image::writeImg(const char* dstc)
     jpeg_destroy_compress(&cinfo);
     fclose(outfile);
 
+    cop(images[0]);
     return 1;
 }
