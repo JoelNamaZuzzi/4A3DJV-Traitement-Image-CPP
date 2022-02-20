@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
     //pathsrcc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic.jpeg";
     //pathdstc = "C:/Users/Nama/Pictures/CPP/wallpaper sonic_modif.jpeg";
-    path = "C:/Users/kidom/OneDrive/Bureau/3djv/c++/Images";
+    path = "../Image";
 
     if (fs::is_directory(fs::status(path))) {
         //std::cout << "Test"<<"\n";
@@ -112,13 +112,15 @@ int main(int argc, char* argv[])
             //std::cout << imgs[0].getSRC()<<"\n";
         }
         i = 0;
-        std::cout << img_nb << "\n";
+        //std::cout << img_nb << "\n";
         for (i = 0; i < img_nb; i++) {
             std::cout << imgs[i].getSRC() << "test third for" << "\n";
             images[i] = imgs[i].readImg();
-
-        //imgs->setImages(images);
+            imgs[i].setNBImages(img_nb);
+            
         }
+        imgs->setImages(images);
+        imgs->getBackground();
     }
 
     return 0;
